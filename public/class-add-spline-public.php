@@ -96,8 +96,61 @@ class Add_Spline_Public {
 		 * class.
 		 */
 
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/add-spline-public.js', array( 'jquery' ), $this->version, false );
+		wp_enqueue_script(
+			$this->plugin_name, 
+			plugin_dir_url( __FILE__ ) . 'js/add-spline-public.js', 
+			array( 'jquery' ),
+			$this->version, 
+			false 
+		);
 
+		wp_enqueue_script(
+			"{$this->plugin_name}three.min",
+			"https://unpkg.com/three@^0.131.0/build/three.min.js",
+			array(),
+			$this->version,
+			true
+		);
+
+		wp_enqueue_script(
+			"{$this->plugin_name}add-spline-runtime", 
+			plugin_dir_url( __FILE__ ) . 'js/add-spline-runtime.js', 
+			array("{$this->plugin_name}three.min"),
+			$this->version,
+			true
+		);
+
+	}
+
+	/**
+	 * Register the JavaScript for the public-facing side of the site.
+	 *
+	 * @since    1.0.0
+	 */
+	public function register_shortcodes() {
+
+		add_shortcode( 'add_spline', [$this, 'insert3dScene'] );
+
+	}
+
+	public function insert3dScene($atts) {
+		$a = shortcode_atts( [
+			'src' => '',
+		], $atts );
+
+		$content = "
+			<div class='spline-container'>
+				<canvas id='canvas3d'></canvas>					
+			</div>
+			<script>
+				window.addEventListener('load', function () {
+					const app = new SpeRuntime.Application();
+					app.start('https://my.spline.design/elevator-6fbea3d9970b45818856dc0e7954a97b/scene.json');
+				})
+			</script>
+		";
+
+		return $content;
 	}
 
 }
